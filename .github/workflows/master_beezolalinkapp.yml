@@ -82,6 +82,6 @@ jobs:
         id: fa
         with:
           app-name: 'beezolaLinkApp'
-          slot-name: 'Production'
+          slot-name: 'master'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           
