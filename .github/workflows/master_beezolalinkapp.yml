@@ -17,15 +17,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ env.NODE_VERSION }} Environment
+      - name: Setup Node ${{ env.NODE_VERSION }} Environment
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
+      - name: 'Resolve Project Dependencies Using Npm'
+        shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           npm install
@@ -37,7 +38,7 @@ jobs:
         run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: node-app
           path: release.zip
@@ -45,28 +46,33 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main'
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write # This is required for requesting the JWT
+      id-token: write #This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: node-app
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
-      - name: Login via Az CLI
-        uses: azure/login@v1
+      
+      - name: Login to Azure
+        uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1499E1D6FC604DF291C75B4CAD148EAD }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_BC0DBC17DFEA40889E3C66C92CFB89B3 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_671F7A67D9864D8E959E5EC9EAA24655 }}
 
-      - name: Deploy to Azure Function App
-        uses: azure/functions-action@v1
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          app-name: 'beezolaLinkApp'
+          slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          
