@@ -47,7 +47,7 @@ app.http('GetGraphToken', {
         }
 
         try {
-            jwt.verify(token, jwtSecret); // Verify the token using the JWT secret
+            jwt.verify(token, jwtSecret, { algorithms: ['HS256'] }); // Verify the token using the JWT secret
 
             const result = await pca.acquireTokenByClientCredential({
                 scopes: ['https://graph.microsoft.com/.default'],

@@ -48,7 +48,7 @@ app.http('GetTokenFunction', {
 
         try {
             // Verify the token using the JWT secret
-            jwt.verify(token, jwtSecret);
+            jwt.verify(token, jwtSecret, { algorithms: ['HS256'] });;
 
             // Acquire the token using MSAL
             const result = await pca.acquireTokenByClientCredential({
